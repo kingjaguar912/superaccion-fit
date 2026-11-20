@@ -19,7 +19,7 @@ navegacionPrincipal.querySelectorAll("a").forEach((enlace) => {
   enlace.addEventListener("click", cerrarMenu);
 });
 
-// Sugerencias de comida
+// Sugerencias de comida //
 const botonIdeaComida = document.querySelector("#food-button");
 const botonActualizarIdea = document.querySelector("#food-refresh");
 const panelIdeaComida = document.querySelector("#food-suggestion");
@@ -102,8 +102,8 @@ campoMensaje.addEventListener("input", () => {
   validarMensaje();
   limpiarEstadoDeEnvio();
 });
-
-formularioContacto.addEventListener("submit", (evento) => {
+ 
+formularioContacto.addEventListener("submit", async (evento) => {
   evento.preventDefault();
 
   const nombreValido = validarNombre(
@@ -120,7 +120,38 @@ formularioContacto.addEventListener("submit", (evento) => {
     return;
   }
 
-  mensajeExito.textContent =
-    "¡Formulario validado! En una próxima versión conectaremos el envío real.";
-  formularioContacto.reset();
+  const pilaresSeleccionados = [
+    ...document.querySelectorAll('input[name="pillar"]:checked'),
+  ].map((opcion) => opcion.value);
+
+  const datosConsulta = {
+    name: campoNombre.value,
+    email: campoEmail.value,
+    pillar: pilaresSeleccionados,
+    message: campoMensaje.value,
+  };
+
+  try {
+    const respuesta = await fetch("http://localhost:3000/api/consultas", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(datosConsulta),
+    });
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(resultado.mensaje);
+    }
+
+    mensajeExito.textContent = resultado.mensaje;
+    formularioContacto.reset();
+
+  } catch (error) {
+    console.error("Error al enviar la consulta:", error);
+    mensajeExito.textContent =
+      "No pudimos enviar tu consulta. Intentá nuevamente.";
+  }
 });
