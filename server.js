@@ -19,10 +19,19 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const app = express();
 
-app.use(cors());
+const origenesPermitidos = [
+  "https://kingjaguar912.github.io",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+];
+
+app.use(cors({
+  origin: origenesPermitidos,
+}));
+
 app.use(express.json());
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.post("/api/consultas", async (req, res) => {
   try {
@@ -54,6 +63,6 @@ app.get("/", (req, res) => {
   res.send("¡Bienvenido a Superacción Fit!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor funcionando en http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Servidor funcionando en el puerto ${PORT}`);
 });
